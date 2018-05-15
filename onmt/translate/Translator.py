@@ -175,7 +175,7 @@ class Translator(object):
                 if self.verbose:
                     sent_number = next(counter)
                     output = trans.log(sent_number)
-                    os.write(1, output.encode('utf-8'))
+                    os.write(2, output.encode('utf-8'))
 
                 # Debug attention.
                 if attn_debug:
@@ -194,7 +194,7 @@ class Translator(object):
                             "{:*>10.7f} ", "{:>10.7f} ", max_index)
                         output += row_format.format(word, *row) + '\n'
                         row_format = "{:>10.10} " + "{:>10.7f} " * len(srcs)
-                    os.write(1, output.encode('utf-8'))
+                    os.write(2, output.encode('utf-8'))
 
         if self.report_score:
             self._report_score('PRED', pred_score_total, pred_words_total)
