@@ -390,9 +390,9 @@ def translate_opts(parser):
                        help='Source directory for image or audio files')
     group.add_argument('-tgt',
                        help='True target sequence (optional)')
-    group.add_argument('-output', default='pred.txt',
+    group.add_argument('-output', default='',
                        help="""Path to output the predictions (each line will
-                       be the decoded sequence""")
+                       be the decoded sequence, if empty write to stdout""")
     group.add_argument('-report_bleu', action='store_true',
                        help="""Report bleu score after translation,
                        call tools/multi-bleu.perl on command line""")

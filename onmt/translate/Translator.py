@@ -15,7 +15,10 @@ import onmt.opts
 
 def make_translator(opt, report_score=True, out_file=None):
     if out_file is None:
-        out_file = codecs.open(opt.output, 'w', 'utf-8')
+        if opt.output!='':
+            out_file = codecs.open(opt.output, 'w', 'utf-8')
+        else: # stdout
+            out_file = sys.stdout
 
     if opt.gpu > -1:
         torch.cuda.set_device(opt.gpu)
