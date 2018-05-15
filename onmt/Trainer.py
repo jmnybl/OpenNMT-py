@@ -71,7 +71,7 @@ class Statistics(object):
                self.xent(),
                self.n_src_words / (t + 1e-5),
                self.n_words / (t + 1e-5),
-               time.time() - start))
+               time.time() - start),file=sys.stderr)
         sys.stdout.flush()
 
     def log(self, prefix, experiment, lr):

@@ -6,6 +6,7 @@ import onmt.ModelConstructor
 import onmt.io
 import onmt.opts
 from onmt.Utils import use_gpu
+import sys
 
 parser = argparse.ArgumentParser(description='translate.py')
 
@@ -57,16 +58,16 @@ def main():
     encoder_embeddings = encoder.embeddings.word_lut.weight.data.tolist()
     decoder_embeddings = decoder.embeddings.word_lut.weight.data.tolist()
 
-    print("Writing source embeddings")
+    print("Writing source embeddings",file=sys.stderr)
     write_embeddings(opt.output_dir + "/src_embeddings.txt", src_dict,
                      encoder_embeddings)
 
-    print("Writing target embeddings")
+    print("Writing target embeddings",file=sys.stderr)
     write_embeddings(opt.output_dir + "/tgt_embeddings.txt", tgt_dict,
                      decoder_embeddings)
 
-    print('... done.')
-    print('Converting model...')
+    print('... done.',file=sys.stderr)
+    print('Converting model...',file=sys.stderr)
 
 
 if __name__ == "__main__":

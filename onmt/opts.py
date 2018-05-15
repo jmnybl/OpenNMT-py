@@ -1,6 +1,6 @@
 import argparse
 from onmt.modules.SRU import CheckSRU
-
+import sys
 
 def model_opts(parser):
     """
@@ -501,7 +501,7 @@ class MarkdownHelpFormatter(argparse.HelpFormatter):
         return ""
 
     def format_help(self):
-        print(self._prog)
+        print(self._prog,file=sys.stderr)
         self._root_section.heading = '# Options: %s' % self._prog
         return super(MarkdownHelpFormatter, self).format_help()
 

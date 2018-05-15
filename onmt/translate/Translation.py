@@ -2,7 +2,7 @@ from __future__ import division, unicode_literals
 
 import torch
 import onmt.io
-
+import sys
 
 class TranslationBuilder(object):
     """
@@ -137,15 +137,15 @@ class Translation(object):
         best_score = self.pred_scores[0]
         pred_sent = ' '.join(best_pred)
         output += 'PRED {}: {}\n'.format(sent_number, pred_sent)
-        print("PRED SCORE: {:.4f}".format(best_score))
+        print("PRED SCORE: {:.4f}".format(best_score),file=sys.stderr)
 
         if self.gold_sent is not None:
             tgt_sent = ' '.join(self.gold_sent)
             output += 'GOLD {}: {}\n'.format(sent_number, tgt_sent)
             # output += ("GOLD SCORE: {:.4f}".format(self.gold_score))
-            print("GOLD SCORE: {:.4f}".format(self.gold_score))
+            print("GOLD SCORE: {:.4f}".format(self.gold_score),file=sys.stderr)
         if len(self.pred_sents) > 1:
-            print('\nBEST HYP:')
+            print('\nBEST HYP:',file=sys.stderr)
             for score, sent in zip(self.pred_scores, self.pred_sents):
                 output += "[{:.4f}] {}\n".format(score, sent)
 

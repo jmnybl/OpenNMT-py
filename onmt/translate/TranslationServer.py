@@ -108,7 +108,7 @@ class TranslationServer():
             while model_id in self.models.keys():
                 model_id += 1
             self.next_id = model_id + 1
-        print("Pre-loading model %d" % model_id)
+        print("Pre-loading model %d" % model_id,file=sys.stderr)
         model = ServerModel(opt, model_id, **model_kwargs)
         self.models[model_id] = model
 
@@ -125,7 +125,7 @@ class TranslationServer():
         if model_id in self.models and self.models[model_id] is not None:
             return self.models[model_id].run(inputs)
         else:
-            print("Error No such model '%s'" % str(model_id))
+            print("Error No such model '%s'" % str(model_id),file=sys.stderr)
             raise ServerModelError("No such model '%s'" % str(model_id))
 
     def unload_model(self, model_id):
@@ -211,7 +211,7 @@ class ServerModel:
 
     def load(self):
         timer = Timer()
-        print("Loading model %d" % self.model_id)
+        print("Loading model %d" % self.model_id,file=sys.stderr)
         timer.start()
         self.out_file = io.StringIO()
         try:
@@ -223,7 +223,7 @@ class ServerModel:
 
         timer.tick("model_loading")
         if self.tokenizer_opt is not None:
-            print("Loading tokenizer")
+            print("Loading tokenizer",file=sys.stderr)
             mandatory = ["type", "model"]
             for m in mandatory:
                 if m not in self.tokenizer_opt:
@@ -253,7 +253,7 @@ class ServerModel:
                 times: (dict) containing times
         """
         timer = Timer()
-        print("\nRunning translation using %d" % self.model_id)
+        print("\nRunning translation using %d" % self.model_id,file=sys.stderr)
 
         timer.start()
         if not self.loaded:
@@ -294,13 +294,13 @@ class ServerModel:
             raise ServerModelError("Runtime Error: %s" % str(e))
 
         timer.tick(name="translation")
-        print("""Using model #%d\t%d inputs (%d subsegment)
+        print("""Using model #%d\t%d inputs (%d subsegment,file=sys.stderr)
                \ttranslation time: %f""" % (self.model_id, len(subsegment),
                                             sscount,
                                             timer.times['translation']))
         self.reset_unload_timer()
         results = self.out_file.getvalue().split("\n")
-        print("Results: ", len(results))
+        print("Results: ", len(results),file=sys.stderr)
         results = ['\n'.join([self.maybe_detokenize(_)
                               for _ in results[subsegment[i]]
                               if len(_) > 0])
@@ -319,14 +319,14 @@ class ServerModel:
            or unloading it; depending on `self.on_timemout` value
         """
         if self.on_timeout == "unload":
-            print("Timeout: unloading model %d" % self.model_id)
+            print("Timeout: unloading model %d" % self.model_id,file=sys.stderr)
             self.unload()
         if self.on_timeout == "to_cpu":
-            print("Timeout: sending model %d to CPU" % self.model_id)
+            print("Timeout: sending model %d to CPU" % self.model_id,file=sys.stderr)
             self.to_cpu()
 
     def unload(self):
-        print("Unloading model %d" % self.model_id)
+        print("Unloading model %d" % self.model_id,file=sys.stderr)
         del self.translator
         if self.opt.cuda:
             torch.cuda.empty_cache()

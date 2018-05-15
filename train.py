@@ -49,7 +49,7 @@ if opt.rnn_type == "SRU" and not opt.gpuid:
     raise AssertionError("Using SRU requires -gpuid set.")
 
 if torch.cuda.is_available() and not opt.gpuid:
-    print("WARNING: You have a CUDA device, should run with -gpuid 0")
+    print("WARNING: You have a CUDA device, should run with -gpuid 0",file=sys.stderr)
 
 if opt.gpuid:
     cuda.set_device(opt.gpuid[0])
@@ -67,7 +67,7 @@ if opt.exp_host != "":
     cc = CrayonClient(hostname=opt.exp_host)
 
     experiments = cc.get_experiment_names()
-    print(experiments)
+    print(experiments,file=sys.stderr)
     if opt.exp in experiments:
         cc.remove_experiment(opt.exp)
     experiment = cc.create_experiment(opt.exp)
@@ -243,28 +243,28 @@ def train_model(model, fields, optim, data_type, model_opt):
                            trunc_size, shard_size, data_type,
                            norm_method, grad_accum_count)
 
-    print('\nStart training...')
+    print('\nStart training...',file=sys.stderr)
     print(' * number of epochs: %d, starting from Epoch %d' %
-          (opt.epochs + 1 - opt.start_epoch, opt.start_epoch))
-    print(' * batch size: %d' % opt.batch_size)
+          (opt.epochs + 1 - opt.start_epoch, opt.start_epoch),file=sys.stderr)
+    print(' * batch size: %d' % opt.batch_size,file=sys.stderr)
 
     for epoch in range(opt.start_epoch, opt.epochs + 1):
-        print('')
+        print('',file=sys.stderr)
 
         # 1. Train for one epoch on the training set.
         train_iter = make_dataset_iter(lazily_load_dataset("train"),
                                        fields, opt)
         train_stats = trainer.train(train_iter, epoch, report_func)
-        print('Train perplexity: %g' % train_stats.ppl())
-        print('Train accuracy: %g' % train_stats.accuracy())
+        print('Train perplexity: %g' % train_stats.ppl(),file=sys.stderr)
+        print('Train accuracy: %g' % train_stats.accuracy(),file=sys.stderr)
 
         # 2. Validate on the validation set.
         valid_iter = make_dataset_iter(lazily_load_dataset("valid"),
                                        fields, opt,
                                        is_train=False)
         valid_stats = trainer.validate(valid_iter)
-        print('Validation perplexity: %g' % valid_stats.ppl())
-        print('Validation accuracy: %g' % valid_stats.accuracy())
+        print('Validation perplexity: %g' % valid_stats.ppl(),file=sys.stderr)
+        print('Validation accuracy: %g' % valid_stats.accuracy(),file=sys.stderr)
 
         # 3. Log to remote server.
         if opt.exp_host:
@@ -291,7 +291,7 @@ def check_save_model_path():
 
 def tally_parameters(model):
     n_params = sum([p.nelement() for p in model.parameters()])
-    print('* number of parameters: %d' % n_params)
+    print('* number of parameters: %d' % n_params,file=sys.stderr)
     enc = 0
     dec = 0
     for name, param in model.named_parameters():
@@ -299,8 +299,8 @@ def tally_parameters(model):
             enc += param.nelement()
         elif 'decoder' or 'generator' in name:
             dec += param.nelement()
-    print('encoder: ', enc)
-    print('decoder: ', dec)
+    print('encoder: ', enc,file=sys.stderr)
+    print('decoder: ', dec,file=sys.stderr)
 
 
 def lazily_load_dataset(corpus_type):
@@ -318,7 +318,7 @@ def lazily_load_dataset(corpus_type):
     def lazy_dataset_loader(pt_file, corpus_type):
         dataset = torch.load(pt_file)
         print('Loading %s dataset from %s, number of examples: %d' %
-              (corpus_type, pt_file, len(dataset)))
+              (corpus_type, pt_file, len(dataset)),file=sys.stderr)
         return dataset
 
     # Sort the glob output by file name (by increasing indexes).
@@ -334,7 +334,7 @@ def lazily_load_dataset(corpus_type):
 
 def load_fields(dataset, data_type, checkpoint):
     if checkpoint is not None:
-        print('Loading vocab from checkpoint at %s.' % opt.train_from)
+        print('Loading vocab from checkpoint at %s.' % opt.train_from,file=sys.stderr)
         fields = onmt.io.load_fields_from_vocab(
             checkpoint['vocab'], data_type)
     else:
@@ -345,10 +345,10 @@ def load_fields(dataset, data_type, checkpoint):
 
     if data_type == 'text':
         print(' * vocabulary size. source = %d; target = %d' %
-              (len(fields['src'].vocab), len(fields['tgt'].vocab)))
+              (len(fields['src'].vocab), len(fields['tgt'].vocab)),file=sys.stderr)
     else:
         print(' * vocabulary size. target = %d' %
-              (len(fields['tgt'].vocab)))
+              (len(fields['tgt'].vocab)),file=sys.stderr)
 
     return fields
 
@@ -358,19 +358,19 @@ def collect_report_features(fields):
     tgt_features = onmt.io.collect_features(fields, side='tgt')
 
     for j, feat in enumerate(src_features):
-        print(' * src feature %d size = %d' % (j, len(fields[feat].vocab)))
+        print(' * src feature %d size = %d' % (j, len(fields[feat].vocab)),file=sys.stderr)
     for j, feat in enumerate(tgt_features):
-        print(' * tgt feature %d size = %d' % (j, len(fields[feat].vocab)))
+        print(' * tgt feature %d size = %d' % (j, len(fields[feat].vocab)),file=sys.stderr)
 
 
 def build_model(model_opt, opt, fields, checkpoint):
-    print('Building model...')
+    print('Building model...',file=sys.stderr)
     model = onmt.ModelConstructor.make_base_model(model_opt, fields,
                                                   use_gpu(opt), checkpoint)
     if len(opt.gpuid) > 1:
-        print('Multi gpu training: ', opt.gpuid)
+        print('Multi gpu training: ', opt.gpuid,file=sys.stderr)
         model = nn.DataParallel(model, device_ids=opt.gpuid, dim=1)
-    print(model)
+    print(model,file=sys.stderr)
 
     return model
 
@@ -379,7 +379,7 @@ def build_optim(model, checkpoint):
     saved_optimizer_state_dict = None
 
     if opt.train_from:
-        print('Loading optimizer from checkpoint.')
+        print('Loading optimizer from checkpoint.',file=sys.stderr)
         optim = checkpoint['optim']
         # We need to save a copy of optim.optimizer.state_dict() for setting
         # the, optimizer state later on in Stage 2 in this method, since
@@ -388,7 +388,7 @@ def build_optim(model, checkpoint):
         # optim.optimizer.state_dict()
         saved_optimizer_state_dict = optim.optimizer.state_dict()
     else:
-        print('Making optimizer for training.')
+        print('Making optimizer for training.',file=sys.stderr)
         optim = onmt.Optim(
             opt.optim, opt.learning_rate, opt.max_grad_norm,
             lr_decay=opt.learning_rate_decay,
@@ -410,7 +410,7 @@ def build_optim(model, checkpoint):
     optim.set_parameters(model.named_parameters())
     print(
         "Stage 1: Keys after executing optim.set_parameters" +
-        "(model.parameters())")
+        "(model.parameters())",file=sys.stderr)
     show_optimizer_state(optim)
 
     if opt.train_from:
@@ -431,7 +431,7 @@ def build_optim(model, checkpoint):
 
         print(
             "Stage 2: Keys after executing  optim.optimizer.load_state_dict" +
-            "(saved_optimizer_state_dict)")
+            "(saved_optimizer_state_dict)",file=sys.stderr)
         show_optimizer_state(optim)
 
         # We want to make sure that indeed we have a non-empty optimizer state
@@ -448,20 +448,20 @@ def build_optim(model, checkpoint):
 
 # Debugging method for showing the optimizer state
 def show_optimizer_state(optim):
-    print("optim.optimizer.state_dict()['state'] keys: ")
+    print("optim.optimizer.state_dict()['state'] keys: ",file=sys.stderr)
     for key in optim.optimizer.state_dict()['state'].keys():
-        print("optim.optimizer.state_dict()['state'] key: " + str(key))
+        print("optim.optimizer.state_dict()['state'] key: " + str(key),file=sys.stderr)
 
-    print("optim.optimizer.state_dict()['param_groups'] elements: ")
+    print("optim.optimizer.state_dict()['param_groups'] elements: ",file=sys.stderr)
     for element in optim.optimizer.state_dict()['param_groups']:
         print("optim.optimizer.state_dict()['param_groups'] element: " + str(
-            element))
+            element),file=sys.stderr)
 
 
 def main():
     # Load checkpoint if we resume from a previous training.
     if opt.train_from:
-        print('Loading checkpoint from %s' % opt.train_from)
+        print('Loading checkpoint from %s' % opt.train_from,file=sys.stderr)
         checkpoint = torch.load(opt.train_from,
                                 map_location=lambda storage, loc: storage)
         model_opt = checkpoint['opt']

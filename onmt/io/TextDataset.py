@@ -81,7 +81,7 @@ class TextDataset(ONMTDatasetBase):
             out_examples.append(example)
 
         print("average src size", src_size / len(out_examples),
-              len(out_examples))
+              len(out_examples),file=sys.stderr)
 
         def filter_pred(example):
             return 0 < len(example.src) <= src_seq_length \

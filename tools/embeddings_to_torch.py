@@ -23,9 +23,9 @@ def get_vocabs(dict_file):
             dec_vocab = vocab[1]
     assert type(None) not in [type(enc_vocab), type(dec_vocab)]
 
-    print("From: %s" % dict_file)
-    print("\t* source vocab: %d words" % len(enc_vocab))
-    print("\t* target vocab: %d words" % len(dec_vocab))
+    print("From: %s" % dict_file,file=sys.stderr)
+    print("\t* source vocab: %d words" % len(enc_vocab),file=sys.stderr)
+    print("\t* target vocab: %d words" % len(dec_vocab),file=sys.stderr)
 
     return enc_vocab, dec_vocab
 
@@ -46,7 +46,7 @@ def get_embeddings(file_enc, opt, flag):
                 continue
             embs[l_split[0]] = [float(em) for em in l_split[1:]]
         print("Got {} encryption embeddings from {}".format(len(embs),
-                                                            file_enc))
+                                                            file_enc),file=sys.stderr)
     else:
 
         for (i, l) in enumerate(open(file_enc, 'rb')):
@@ -60,7 +60,7 @@ def get_embeddings(file_enc, opt, flag):
                 continue
             embs[l_split[0]] = [float(em) for em in l_split[1:]]
         print("Got {} decryption embeddings from {}".format(len(embs),
-                                                            file_enc))
+                                                            file_enc),file=sys.stderr)
 
     return embs
 
@@ -114,27 +114,27 @@ def main():
     filtered_dec_embeddings, dec_count = match_embeddings(dec_vocab,
                                                           embeddings_dec,
                                                           opt)
-    print("\nMatching: ")
+    print("\nMatching: ",file=sys.stderr)
     match_percent = [_['match'] / (_['match'] + _['miss']) * 100
                      for _ in [enc_count, dec_count]]
     print("\t* enc: %d match, %d missing, (%.2f%%)" % (enc_count['match'],
                                                        enc_count['miss'],
-                                                       match_percent[0]))
+                                                       match_percent[0]),file=sys.stderr)
     print("\t* dec: %d match, %d missing, (%.2f%%)" % (dec_count['match'],
                                                        dec_count['miss'],
-                                                       match_percent[1]))
+                                                       match_percent[1]),file=sys.stderr)
 
-    print("\nFiltered embeddings:")
-    print("\t* enc: ", filtered_enc_embeddings.size())
-    print("\t* dec: ", filtered_dec_embeddings.size())
+    print("\nFiltered embeddings:",file=sys.stderr)
+    print("\t* enc: ", filtered_enc_embeddings.size(),file=sys.stderr)
+    print("\t* dec: ", filtered_dec_embeddings.size(),file=sys.stderr)
 
     enc_output_file = opt.output_file + ".enc.pt"
     dec_output_file = opt.output_file + ".dec.pt"
     print("\nSaving embedding as:\n\t* enc: %s\n\t* dec: %s"
-          % (enc_output_file, dec_output_file))
+          % (enc_output_file, dec_output_file),file=sys.stderr)
     torch.save(filtered_enc_embeddings, enc_output_file)
     torch.save(filtered_dec_embeddings, dec_output_file)
-    print("\nDone.")
+    print("\nDone.",file=sys.stderr)
 
 
 if __name__ == "__main__":

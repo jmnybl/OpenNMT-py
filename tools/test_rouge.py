@@ -64,4 +64,4 @@ if __name__ == "__main__":
     if args.c.upper() == "STDIN":
         args.c = sys.stdin
     results_dict = test_rouge(args.c, args.r)
-    print(rouge_results_to_str(results_dict))
+    print(rouge_results_to_str(results_dict),file=sys.stderr)

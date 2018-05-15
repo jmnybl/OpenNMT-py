@@ -1,6 +1,6 @@
 import torch.optim as optim
 from torch.nn.utils import clip_grad_norm
-
+import sys
 
 class MultipleOptimizer(object):
     def __init__(self, op):
@@ -138,7 +138,7 @@ class Optim(object):
 
         if self.start_decay:
             self.lr = self.lr * self.lr_decay
-            print("Decaying learning rate to %g" % self.lr)
+            print("Decaying learning rate to %g" % self.lr,file=sys.stderr)
 
         self.last_ppl = ppl
         if self.method != 'sparseadam':
