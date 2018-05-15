@@ -11,7 +11,7 @@ import onmt.ModelConstructor
 import onmt.translate.Beam
 import onmt.io
 import onmt.opts
-
+import sys
 
 def make_translator(opt, report_score=True, out_file=None):
     if out_file is None:
@@ -178,7 +178,7 @@ class Translator(object):
                 if self.verbose:
                     sent_number = next(counter)
                     output = trans.log(sent_number)
-                    os.write(1, output.encode('utf-8'))
+                    os.write(2, output.encode('utf-8'))
 
                 # Debug attention.
                 if attn_debug:
@@ -197,7 +197,7 @@ class Translator(object):
                             "{:*>10.7f} ", "{:>10.7f} ", max_index)
                         output += row_format.format(word, *row) + '\n'
                         row_format = "{:>10.10} " + "{:>10.7f} " * len(srcs)
-                    os.write(1, output.encode('utf-8'))
+                    os.write(2, output.encode('utf-8'))
 
         if self.report_score:
             self._report_score('PRED', pred_score_total, pred_words_total)
@@ -394,19 +394,19 @@ class Translator(object):
     def _report_score(self, name, score_total, words_total):
         print("%s AVG SCORE: %.4f, %s PPL: %.4f" % (
             name, score_total / words_total,
-            name, math.exp(-score_total / words_total)))
+            name, math.exp(-score_total / words_total)),file=sys.stderr)
 
     def _report_bleu(self, tgt_path):
         import subprocess
         path = os.path.split(os.path.realpath(__file__))[0]
-        print()
+        print(file=sys.stderr)
 
         res = subprocess.check_output("perl %s/tools/multi-bleu.perl %s"
                                       % (path, tgt_path, self.output),
                                       stdin=self.out_file,
                                       shell=True).decode("utf-8")
 
-        print(">> " + res.strip())
+        print(">> " + res.strip(),file=sys.stderr)
 
     def _report_rouge(self, tgt_path):
         import subprocess
@@ -416,4 +416,4 @@ class Translator(object):
             % (path, tgt_path),
             shell=True,
             stdin=self.out_file).decode("utf-8")
-        print(res.strip())
+        print(res.strip(),file=sys.stderr)

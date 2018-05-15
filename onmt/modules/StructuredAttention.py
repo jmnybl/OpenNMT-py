@@ -2,7 +2,7 @@ import torch.nn as nn
 import torch
 import torch.cuda
 from torch.autograd import Variable
-
+import sys
 
 class MatrixTree(nn.Module):
     """Implementation of the matrix-tree theorem for computing marginals
@@ -44,4 +44,4 @@ if __name__ == "__main__":
     dtree = MatrixTree()
     q = torch.rand(1, 5, 5).cuda()
     marg = dtree.forward(Variable(q))
-    print(marg.sum(1))
+    print(marg.sum(1),file=sys.stderr)

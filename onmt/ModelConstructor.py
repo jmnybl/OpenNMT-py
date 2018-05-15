@@ -16,7 +16,7 @@ from onmt.modules import Embeddings, ImageEncoder, CopyGenerator, \
                          CNNEncoder, CNNDecoder, AudioEncoder
 from onmt.Utils import use_gpu
 from torch.nn.init import xavier_uniform
-
+import sys
 
 def make_embeddings(opt, word_dict, feature_dicts, for_encoder=True):
     """
@@ -200,12 +200,12 @@ def make_base_model(model_opt, fields, gpu, checkpoint=None):
 
     # Load the model states from checkpoint or initialize them.
     if checkpoint is not None:
-        print('Loading model parameters.')
+        print('Loading model parameters.',file=sys.stderr)
         model.load_state_dict(checkpoint['model'])
         generator.load_state_dict(checkpoint['generator'])
     else:
         if model_opt.param_init != 0.0:
-            print('Intializing model parameters.')
+            print('Intializing model parameters.',file=sys.stderr)
             for p in model.parameters():
                 p.data.uniform_(-model_opt.param_init, model_opt.param_init)
             for p in generator.parameters():

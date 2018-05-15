@@ -192,7 +192,7 @@ github_doc_root = 'https://github.com/opennmt/opennmt-py/tree/master/doc/'
 
 
 def setup(app):
-    print("hello")
+    print("hello",file=sys.stderr)
     app.add_config_value('recommonmark_config', {
         'enable_eval_rst': True
     }, True)
