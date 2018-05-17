@@ -169,21 +169,26 @@ class TextDataset(ONMTDatasetBase):
         Yields:
             (word, features, nfeat) triples for each line.
         """
-        with codecs.open(path, "r", "utf-8") as corpus_file:
-            for i, line in enumerate(corpus_file):
-                line = line.strip().split()
-                if truncate:
-                    line = line[:truncate]
+        if isinstance(path,str):
+            corpus_file = codecs.open(path, "r", "utf-8")
+        else:
+            corpus_file = path # preopened datastream, e.g. stdin
+        for i, line in enumerate(corpus_file):
+            line = line.strip().split()
+            if truncate:
+                line = line[:truncate]
 
-                words, feats, n_feats = \
-                    TextDataset.extract_text_features(line)
+            words, feats, n_feats = \
+                TextDataset.extract_text_features(line)
 
-                example_dict = {side: words, "indices": i}
-                if feats:
-                    prefix = side + "_feat_"
-                    example_dict.update((prefix + str(j), f)
-                                        for j, f in enumerate(feats))
-                yield example_dict, n_feats
+            example_dict = {side: words, "indices": i}
+            if feats:
+                prefix = side + "_feat_"
+                example_dict.update((prefix + str(j), f)
+                                    for j, f in enumerate(feats))
+            yield example_dict, n_feats
+        if isinstance(path,str):
+            corpus_file.close()
 
     @staticmethod
     def get_fields(n_src_features, n_tgt_features):

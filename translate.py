@@ -10,11 +10,16 @@ import onmt
 import onmt.ModelConstructor
 import onmt.modules
 import onmt.opts
+import sys
 
 
 def main(opt):
     translator = make_translator(opt, report_score=True)
-    translator.translate(opt.src_dir, opt.src, opt.tgt,
+    if opt.src!="":
+        translator.translate(opt.src_dir, opt.src, opt.tgt,
+                         opt.batch_size, opt.attn_debug)
+    else:
+        translator.translate(opt.src_dir, sys.stdin, opt.tgt,
                          opt.batch_size, opt.attn_debug)
 
 
